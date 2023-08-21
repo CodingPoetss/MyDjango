@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+{% block title %}
+    <title>新增部门</title>
+{% endblock %}
+{% block content %}
+     <div class="container">
+                <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">新建部门</h3>
+          </div>
+          <div class="panel-body">
+            <form method="post">
+                {% csrf_token %}
+                 <div class="form-group">
+                    <label>名称</label>
+                      <input style="width: 200px" type="text" class="form-control" placeholder="请输入" name="title">
+                 </div>
+                     <button type="submit" class="btn btn-primary">保存</button>
+            </form>
+          </div>
+        </div>
+    </div>
+{% endblock %}

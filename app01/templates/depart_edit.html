@@ -1,0 +1,62 @@
+{% extends 'layout.html' %}
+{% block title %}
+    <title>用户管理系统</title>
+{% endblock %}
+{% block content %}
+ <div class="container">
+        <div style="margin-bottom: 10px">
+            <a class="btn btn-primary btn-success" href="/depart/add/" >新建部门</a>
+        </div>
+
+    <!-- 表格面板 -->
+        <div>
+            <div class="panel panel-default">
+      <!-- Default panel contents -->
+      <div class="panel-heading">
+           <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+           部门列表
+      </div>
+
+
+      <!-- Table -->
+      <table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>名称</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <form method="post">
+        {% csrf_token %}
+        <tbody>
+            {% for obj in data_list %}
+            <tr>
+                <th scope="row">{{ obj.id }}</th>
+                <td>
+                    {% if obj.id == nid %}
+                    <input style="height:20px ;width: 70px" type="text" placeholder="{{ obj.title }}" name="title" class="form-control">
+                </td>
+                <td>
+                    <a class="btn btn-primary btn-xs">编辑</a>
+                    <button type="submit" class="btn btn-success btn-xs">保存</button>
+                </td>
+                  {% else %}
+                {{ obj.title }}
+                </td>
+                <td>
+                    <a class="btn btn-primary btn-xs" href="/depart/{{ obj.id }}/edit/">编辑</a>
+                    <a class="btn btn-danger btn-xs" href="/depart/delete/?nid={{ obj.id }}">删除</a>
+                </td>
+            </tr>
+                    {% endif %}
+            {% endfor %}
+        </tbody>
+    </form>
+</table>
+
+    </div>
+        </div>
+
+    </div>
+{% endblock %}
