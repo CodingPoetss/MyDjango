@@ -58,52 +58,60 @@
 class Pagination(object):
     def __init__(self, request, model_objects, search_contains, page_size=10, page_param="page",
                  page_jump="jump", page_search="q"):
-        # 搜索框
+
+        # 1.搜索框
         data_dict = {}
         search_data = request.GET.get(page_search, '')
         if search_data:
             data_dict[search_contains] = search_data
         self.search_data = search_data
 
-        page = request.GET.get(page_param, "1")
-        if page.isdecimal():  # 判断是否是有效的十进制数
-            page = int(page)
-        else:
-            page = 1  # 默认为第一页
-
-        # self.page = self.page  # 当前页面
-        # self.page_size = page_size  # 每页显示的数据条数
-
-        # 起始的数据条数
-        start = (page - 1) * page_size
-        end = page * page_size
-
-        # 数据总条数
-        from app01 import models
+        # 2.数据总条数
         total_count = model_objects.filter(**data_dict).count()
         total_page_count, div = divmod(total_count, page_size)
         if div:  # div表示余数，如果为真则使总页数加一
             total_page_count += 1
 
-        # 分页
-        page_ = int(request.GET.get(page_param, 1))
-        if request.GET.get(page_jump) == None:
-            page = page_
-            remain_value = ''
-        else:
-            try:
-                jump_value = int(request.GET.get(page_jump))
-                if 1 <= jump_value <= total_page_count:
-                    page = int(request.GET.get(page_jump, page_))
-                    remain_value = page
-                else:
-                    page = page_
-                    remain_value = ''
-            except:
-                page = page_
-                remain_value = ''
+        # page = request.GET.get(page_param, "1")  # 若未get，到默认为第一页
+        # if page.isdecimal():  # 判断是否是有效的十进制数
+        #     page = int(page)
+        # else:
+        #     page = 1  # 默认为第一页
 
-        # 计算出前后五页
+        # 3.分页
+        page_ = request.GET.get(page_param, "1")  # 若未get，到默认为第一页
+        if page_.isdecimal():  # 判断是否是有效的十进制数
+            page_ = int(page_)
+        else:
+            page_ = 1  # 默认为第一页
+
+        jump_value = request.GET.get(page_jump, '')
+        page = page_
+        remain_value = ''
+        if jump_value.isdecimal():
+            jump_value = int(jump_value)
+            if 1 <= jump_value <= total_page_count:
+                page = jump_value
+                remain_value = page
+
+        #
+        # if request.GET.get(page_jump) is None:
+        #     page = page_
+        #     remain_value = ''
+        # else:
+        #     try:
+        #         jump_value = int(request.GET.get(page_jump))
+        #         if 1 <= jump_value <= total_page_count:
+        #             page = jump_value
+        #             remain_value = page
+        #         else:
+        #             page = page_
+        #             remain_value = ''
+        #     except:
+        #         page = page_
+        #         remain_value = ''
+
+        # 4.计算出前后五页
         plus = 5
         if total_page_count <= 2 * plus + 1:
             # 数据库数据比较少
@@ -112,11 +120,11 @@ class Pagination(object):
         else:
             # 数据库数据比较多
 
-            # 当前页 < 5
+            # 当前页 < 整数第5
             if page <= plus:
                 start_page = 1
                 end_page = 2 * plus
-            # 当前页 > 5
+            # 当前页 > 倒数第5
             elif (page + plus) > total_page_count:
                 start_page = total_page_count - 2 * plus
                 end_page = total_page_count
@@ -127,47 +135,53 @@ class Pagination(object):
         # 初始化要插入html的数据为空
         page_str_list = []
 
+
         # 首页
-        page_str_list.append('<li><a href="?page=1">首页</a></li>')
+        page_str_list.append('<li><a href="?page=1&q={}">首页</a></li>'.format(search_data))
 
         # 上一页
         if page > 1:
-            prev = '<li><a href="?page={}">上一页</a></li>'.format(page - 1)
+            prev = '<li><a href="?page={}&q={}">上一页</a></li>'.format(page - 1, search_data)
         else:
-            prev = '<li><a href="?page={}">上一页</a></li>'.format(1)
+            prev = '<li><a href="?page={}&q={}">上一页</a></li>'.format(1, search_data)
         page_str_list.append(prev)
 
         for i in range(start_page, end_page + 1):
             if i == page:
-                ele = '<li class="active"><a href="?page={}">{}</a></li>'.format(i, i)
+                ele = '<li class="active"><a href="?page={}&q={}">{}</a></li>'.format(i, search_data, i)
             else:
-                ele = '<li><a href="?page={}">{}</a></li>'.format(i, i)
+                ele = '<li><a href="?page={}&q={}">{}</a></li>'.format(i, search_data, i)
             page_str_list.append(ele)
 
         # 下一页
         if page < total_page_count:
-            next = '<li><a href="?page={}">下一页</a></li>'.format(page + 1)
+            next = '<li><a href="?page={}&q={}">下一页</a></li>'.format(page + 1, search_data)
         else:
-            next = '<li><a href="?page={}">下一页</a></li>'.format(total_page_count)
+            next = '<li><a href="?page={}&q={}">下一页</a></li>'.format(total_page_count, search_data)
         page_str_list.append(next)
 
         # 尾页
-        page_str_list.append('<li><a href="?page={}">尾页</a></li>'.format(total_page_count))
+        page_str_list.append('<li><a href="?page={}&q={}">尾页</a></li>'.format(total_page_count, search_data))
 
         # 跳转界面
         search_string = """
-                         <div style="float: right;width: 200px">
-                             <form method="get">
-                                 <div class="input-group">
-                                     <input type="text" class="form-control" placeholder="页码" name="jump" value="{}" >
-                                     <span class="input-group-btn">
-                                         <button class="btn btn-default" type="submit">跳转</button>
-                                     </span>
-                                 </div>
-                             </form>
-                         </div>
-                         """.format(remain_value)
+                              <div style="float: right;width: 200px">
+                                  <form method="get">
+                                      <div class="input-group">
+                                          <input type="text" class="form-control" placeholder="页码" name="jump" value="{}" >
+                                          <input type="hidden" name="q" value="{}">
+                                          <span class="input-group-btn">
+                                              <button class="btn btn-default" type="submit">跳转</button>
+                                          </span>
+                                      </div>
+                                  </form>
+                              </div>
+                              """.format(remain_value, search_data)
         page_str_list.append(search_string)
+
+        # 每页显示的表单数据条数的终始位置
+        start = (page - 1) * page_size
+        end = page * page_size
 
         # 添加到html中
         from django.utils.safestring import mark_safe
