@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.urls import path
 
-from app01.views import depart, user, transfer
+from app01.views import depart, user,admin, transfer
 
 urlpatterns = [
     # 部门管理
@@ -31,6 +31,9 @@ urlpatterns = [
     path('user/model/form/add/', user.user_model_form_add),
     path('user/<int:nid>/edit/', user.user_edit),
     path('user/<int:nid>/delete/', user.user_delete),
+
+    # 管理员管理
+    path('admin/list/', admin.admin_list),
 
     # 跳转页面
     path('success/', transfer.success),

@@ -1,7 +1,6 @@
 # python learning
 # coding time: 2023/8/22 14:51
 from django.shortcuts import render, redirect
-
 from app01 import models
 
 

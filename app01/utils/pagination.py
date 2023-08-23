@@ -13,7 +13,7 @@
 
     3.实例化分页对象
     from app01.utils.pagination import Pagination
-    page_object = Pagination(request, model_objects, search__contains)
+    page_object = Pagination(request, model_objects, search_contains)
     context = {'data_list': page_object.data_list,
                'search_data': page_object.search_data,
                'page_string': page_object.page_string,
@@ -36,7 +36,7 @@
                     </span>
              </div>
            </form>
-        </div>
+    </div>
 
 
     2.循环显示的每条数据
@@ -55,8 +55,9 @@
 
 """
 
+
 class Pagination(object):
-    def __init__(self, request, model_objects, search_contains, page_size=10, page_param="page",
+    def __init__(self, request, model_objects, search_contains, page_size=10, plus=5, page_param="page",
                  page_jump="jump", page_search="q"):
 
         # 1.搜索框
@@ -71,12 +72,6 @@ class Pagination(object):
         total_page_count, div = divmod(total_count, page_size)
         if div:  # div表示余数，如果为真则使总页数加一
             total_page_count += 1
-
-        # page = request.GET.get(page_param, "1")  # 若未get，到默认为第一页
-        # if page.isdecimal():  # 判断是否是有效的十进制数
-        #     page = int(page)
-        # else:
-        #     page = 1  # 默认为第一页
 
         # 3.分页
         page_ = request.GET.get(page_param, "1")  # 若未get，到默认为第一页
@@ -94,25 +89,8 @@ class Pagination(object):
                 page = jump_value
                 remain_value = page
 
-        #
-        # if request.GET.get(page_jump) is None:
-        #     page = page_
-        #     remain_value = ''
-        # else:
-        #     try:
-        #         jump_value = int(request.GET.get(page_jump))
-        #         if 1 <= jump_value <= total_page_count:
-        #             page = jump_value
-        #             remain_value = page
-        #         else:
-        #             page = page_
-        #             remain_value = ''
-        #     except:
-        #         page = page_
-        #         remain_value = ''
-
-        # 4.计算出前后五页
-        plus = 5
+        # 4.计算出前后n页
+        # plus = 5 这里表示显示前后5页
         if total_page_count <= 2 * plus + 1:
             # 数据库数据比较少
             start_page = 1
@@ -134,7 +112,6 @@ class Pagination(object):
 
         # 初始化要插入html的数据为空
         page_str_list = []
-
 
         # 首页
         page_str_list.append('<li><a href="?page=1&q={}">首页</a></li>'.format(search_data))
@@ -292,4 +269,3 @@ class Pagination(object):
     # 添加到html中
     page_string = mark_safe("".join(page_str_list))
     data_list = models.UserInfo.objects.filter(**data_dict)[page_object.start:page_object.end]'''
-

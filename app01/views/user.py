@@ -4,7 +4,7 @@ from django import forms
 from django.shortcuts import render, redirect
 
 from app01 import models
-
+from app01.utils.Bootstrap import BootStrapModelForm
 
 # 用户函数
 def user_list(request):
@@ -39,10 +39,12 @@ def user_add(request):
                                    gender=gender_id, depart=depart_instance)
     return redirect('/success/')
 
-class UserModelForm(forms.ModelForm):
-    name = forms.CharField(min_length=3, label='用户名')
+class UserModelForm(BootStrapModelForm):
+    name = forms.CharField(min_length=3,
+                           label='用户名',
+                           widget=forms.TextInput(attrs={'class': 'form-control'})
+     )
     password = forms.CharField(max_length=10, label='密码')
-
     # widgets = {
     #     "create-time":forms.TextInput("type":"date")
     # }
@@ -50,10 +52,7 @@ class UserModelForm(forms.ModelForm):
         model = models.UserInfo  # 选择的model模板类
         fields = ['name', 'password', 'age', 'account', 'create_time', 'gender', 'depart', ]  # 选择类中的元素
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for name, field in self.fields.items():
-            field.widget.attrs = {'class': 'form-control', 'placeholder': field.label}
+
 def user_model_form_add(request):
     if request.method == 'GET':
         form = UserModelForm()

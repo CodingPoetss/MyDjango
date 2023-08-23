@@ -1,11 +1,21 @@
 from django.db import models
 
+
 # Create your models here.
+
+class Admin(models.Model):
+    """ 管理员 """
+    name = models.CharField(verbose_name='用户名', max_length=32)
+    password = models.CharField(verbose_name='密码', max_length=64)
+
+
 class Department(models.Model):
     """ 部门表 """
     title = models.CharField(verbose_name='标题', max_length=32)
+
     def __str__(self):
-        return self.title           # 实例化对象时输出的是地址,__str__(self)可以打印具体的地址
+        return self.title  # 实例化对象时输出的是地址,__str__(self)可以打印具体的地址
+
 
 class UserInfo(models.Model):
     """ 员工表 """
@@ -23,6 +33,7 @@ class UserInfo(models.Model):
     ''' 置空 '''
     # depart = models.ForeignKey(verbose_name='所属部门', to='Department', to_field='id', null=True, blank=True, on_delete=models.SET_NULL)
     depart = models.ForeignKey(verbose_name='所属部门', to='Department', to_field='id', on_delete=models.PROTECT)
+
 
 class PrettyNum(models.Model):
     """ 靓号管理 """
